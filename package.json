@@ -1,0 +1,36 @@
+{
+  "name": "mp3ify",
+  "version": "1.0.0",
+  "description": "Convert directory of audio files to mp3 format.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasonaibrahim/node-mp3ify.git"
+  },
+  "bin": {
+    "mp3ify": "bin/index.js"
+  },
+  "preferGlobal": "true",
+  "keywords": [
+    "mp3",
+    "wav",
+    "flac",
+    "audio",
+    "convert",
+    "node"
+  ],
+  "dependencies": {
+    "chalk": "^1.1.3",
+    "fluent-ffmpeg": "^2.1.0",
+    "mime": "^1.3.4"
+  },
+  "author": "Jason Ibrahim",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jasonaibrahim/node-mp3ify/issues"
+  },
+  "homepage": "https://github.com/jasonaibrahim/node-mp3ify#readme"
+}
