@@ -33,6 +33,14 @@
     "url": "git+https://github.com/jasonaibrahim/node-mp3ify.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js"
+  },
+  "devDependencies": {
+    "babel-core": "^6.22.1",
+    "babel-loader": "^6.2.10",
+    "babel-plugin-transform-regenerator": "^6.22.0",
+    "babel-preset-latest": "^6.22.0",
+    "webpack": "^2.2.0"
   }
 }

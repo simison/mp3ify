@@ -1,0 +1,1 @@
+const _ffmpeg = require('fluent-ffmpeg');
