@@ -18,6 +18,11 @@ See the guide
 here
 </a>
 
+## Installation
+```shell
+npm install -g mp3ify
+```
+
 ## Usage
 
 ```shell
