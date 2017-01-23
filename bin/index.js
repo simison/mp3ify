@@ -6118,7 +6118,7 @@ function filesOfType(path, mimeType) {
 
         function filterOnMimeType(files) {
             return files.filter(function (file) {
-                return mime.lookup(file).indexOf(mimeType) > -1 && !new RegExp('.mp3' + '$').test(file);
+                return mime.lookup(file).indexOf(mimeType) > -1;
             });
         }
     });
@@ -6371,22 +6371,30 @@ function encodeMP3(root, files, opts) {
         // iterate over files and convert each to mp3 format
         files.forEach(function (file) {
             try {
-                var fullPath = root + '/' + file;
-                ffmpeg().input(fullPath).audioCodec('libmp3lame').audioBitrate(opts.bitrate)
-                // save the file as <the original file>.mp3
-                .save(fullPath + '.mp3')
-                // log messages for start and end
-                .on('start', function () {
-                    (0, _index.log)('starting ' + file + '...');
-                })
-                // resolve the promise when all of the files have finished converting
-                .on('end', function () {
-                    (0, _index.log)(file + '.mp3 done', 'success');
-                    doneCount += 1;
-                    if (doneCount === files.length) {
-                        resolve();
+                (function () {
+                    var fullPath = root + '/' + file;
+
+                    var savePath = fullPath;
+                    if (!/.mp3$/.test(file)) {
+                        savePath = fullPath + '.mp3';
                     }
-                });
+
+                    ffmpeg().input(fullPath).audioCodec('libmp3lame').audioBitrate(opts.bitrate)
+                    // save the file as <the original file>.mp3
+                    .save(savePath)
+                    // log messages for start and end
+                    .on('start', function () {
+                        (0, _index.log)('starting ' + file + '...');
+                    })
+                    // resolve the promise when all of the files have finished converting
+                    .on('end', function () {
+                        (0, _index.log)(savePath + ' done', 'success');
+                        doneCount += 1;
+                        if (doneCount === files.length) {
+                            resolve();
+                        }
+                    });
+                })();
             } catch (e) {
                 reject(e);
             }
@@ -6412,25 +6420,34 @@ var _fs = __webpack_require__(6);
 
 var _ffmpeg = __webpack_require__(11);
 
-// TODO handle re-converting mp3 files, currently an error is thrown
-// TODO if options.quiet are set, suppress logging
+var options = (0, _arg.parseOptsWithDefaults)(__webpack_require__(5)(process.argv.slice(3)));
+
+// TODO handle converting mp3 files. currently the file will be truncated
+// TODO write tests
 
 main().catch(function (e) {
     printErr(e);
-    process.exit(1);
+    process.exit(options.quiet ? 0 : 1);
 });
 
+/**
+ * starting point for CLI
+ * @returns {Promise}
+ */
 function main() {
     var path = process.argv[2];
-    var options = (0, _arg.parseOptsWithDefaults)(__webpack_require__(5)(process.argv.slice(3)));
 
     return new Promise(function (resolve, reject) {
         validateArgs(path).then(function () {
             (0, _fs.filesOfType)(path, 'audio').then(function (files) {
-                log("Converting " + files.length + " files to mp3 at " + options.bitrate + " kbps", 'info');
-                (0, _ffmpeg.encodeMP3)(process.cwd(), files, options).then(function () {
-                    log('All files successfully converted.', 'info');
-                }).catch(reject);
+                if (files.length) {
+                    log("Converting " + files.length + " files to mp3 at " + options.bitrate + " kbps...", 'info');
+                    (0, _ffmpeg.encodeMP3)(process.cwd(), files, options).then(function () {
+                        log('All files successfully converted.', 'info');
+                    }).catch(reject);
+                } else {
+                    log('No files found for conversion.', 'info');
+                }
             });
         }).catch(reject);
     });
@@ -6475,7 +6492,9 @@ function log(msg, type) {
             msg = chalk.grey(msg);
             break;
     }
-    console.log(msg);
+    if (!options.quiet) {
+        console.log(msg);
+    }
 }
 
 function printErr(err) {

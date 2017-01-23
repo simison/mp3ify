@@ -1,7 +1,7 @@
 {
   "name": "mp3ify",
   "description": "Convert directory of audio files to mp3 format.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": "Jason Ibrahim",
   "bin": {
     "mp3ify": "bin/index.js"
@@ -15,15 +15,23 @@
     "mime": "^1.3.4",
     "minimist": "^1.2.0"
   },
+  "devDependencies": {
+    "babel-core": "^6.22.1",
+    "babel-loader": "^6.2.10",
+    "babel-plugin-transform-regenerator": "^6.22.0",
+    "babel-preset-latest": "^6.22.0",
+    "mocha": "^3.2.0",
+    "webpack": "^2.2.0"
+  },
   "homepage": "https://github.com/jasonaibrahim/node-mp3ify#readme",
   "keywords": [
     "audio",
     "convert",
+    "ffmpeg",
     "flac",
     "mp3",
     "node",
-    "wav",
-    "ffmpeg"
+    "wav"
   ],
   "license": "MIT",
   "main": "index.js",
@@ -35,13 +43,5 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "test": "mocha"
-  },
-  "devDependencies": {
-    "babel-core": "^6.22.1",
-    "babel-loader": "^6.2.10",
-    "babel-plugin-transform-regenerator": "^6.22.0",
-    "babel-preset-latest": "^6.22.0",
-    "mocha": "^3.2.0",
-    "webpack": "^2.2.0"
   }
 }

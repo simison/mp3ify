@@ -59,7 +59,7 @@ export function filesOfType(path, mimeType) {
 
         function filterOnMimeType(files) {
             return files.filter(file => {
-                return mime.lookup(file).indexOf(mimeType) > -1 && !(new RegExp('.mp3' + '$').test(file));
+                return mime.lookup(file).indexOf(mimeType) > -1;
             });
         }
     });

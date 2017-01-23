@@ -2,25 +2,34 @@ import {parseOptsWithDefaults} from "./helpers/arg.helper";
 import {isFile, isDirectory, filesOfType} from "./helpers/fs.helper";
 import {encodeMP3} from "./helpers/ffmpeg.helper";
 
-// TODO handle re-converting mp3 files, currently an error is thrown
-// TODO if options.quiet are set, suppress logging
+const options = parseOptsWithDefaults(require('minimist')(process.argv.slice(3)));
+
+// TODO handle converting mp3 files. currently the file will be truncated
+// TODO write tests
 
 main().catch((e) => {
     printErr(e);
-    process.exit(1);
+    process.exit(options.quiet ? 0 : 1);
 });
 
+/**
+ * starting point for CLI
+ * @returns {Promise}
+ */
 function main() {
     const path = process.argv[2];
-    const options = parseOptsWithDefaults(require('minimist')(process.argv.slice(3)));
 
     return new Promise((resolve, reject) => {
         validateArgs(path).then(() => {
             filesOfType(path, 'audio').then((files) => {
-                log(`Converting ${files.length} files to mp3 at ${options.bitrate} kbps`, 'info');
-                encodeMP3(process.cwd(), files, options).then(() => {
-                    log('All files successfully converted.', 'info');
-                }).catch(reject);
+                if (files.length) {
+                    log(`Converting ${files.length} files to mp3 at ${options.bitrate} kbps...`, 'info');
+                    encodeMP3(process.cwd(), files, options).then(() => {
+                        log('All files successfully converted.', 'info');
+                    }).catch(reject);
+                } else {
+                    log('No files found for conversion.', 'info');
+                }
             });
         }).catch(reject);
     });
@@ -65,7 +74,9 @@ export function log(msg, type) {
             msg = chalk.grey(msg);
             break;
     }
-    console.log(msg);
+    if (!options.quiet) {
+        console.log(msg);
+    }
 }
 
 function printErr(err) {

@@ -10,19 +10,26 @@ export function encodeMP3(root, files, opts) {
         files.forEach((file) => {
             try {
                 const fullPath = root + '/' + file;
+
+                // only add the .mp3 extension if it is not already present
+                let savePath = fullPath;
+                if (!/.mp3$/.test(file)) {
+                    savePath = fullPath + '.mp3';
+                }
+
                 ffmpeg()
                     .input(fullPath)
                     .audioCodec('libmp3lame')
                     .audioBitrate(opts.bitrate)
                     // save the file as <the original file>.mp3
-                    .save(`${fullPath}.mp3`)
+                    .save(savePath)
                     // log messages for start and end
                     .on('start', () => {
                         log(`starting ${file}...`);
                     })
                     // resolve the promise when all of the files have finished converting
                     .on('end', () => {
-                        log(`${file}.mp3 done`, 'success');
+                        log(`${savePath} done`, 'success');
                         doneCount += 1;
                         if (doneCount === files.length) {
                             resolve();
