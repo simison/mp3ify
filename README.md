@@ -10,4 +10,5 @@ Files will be saved in the calling
 directory and will have the same name as the original file with `.mp3` appended.
 
 #### options
-* `--bitrate` - the bitrate of the generated mp3 file
+* `--bitrate` - the bitrate of the generated mp3 file. default: 320
+* `--quiet` - suppress console output during encoding. default: false

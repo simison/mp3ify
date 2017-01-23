@@ -1,4 +1,9 @@
-import {firstArgIsFile, firstArgIsDirectory} from "./helpers/arg.helper";
+import {parseOptsWithDefaults} from "./helpers/arg.helper";
+import {isFile, isDirectory, filesOfType} from "./helpers/fs.helper";
+import {encodeMP3} from "./helpers/ffmpeg.helper";
+
+// TODO handle re-converting mp3 files, currently an error is thrown
+// TODO if options.quiet are set, suppress logging
 
 main().catch((e) => {
     printErr(e);
@@ -6,8 +11,17 @@ main().catch((e) => {
 });
 
 function main() {
+    const path = process.argv[2];
+    const options = parseOptsWithDefaults(require('minimist')(process.argv.slice(3)));
+
     return new Promise((resolve, reject) => {
-        validateArgs().then(() => {
+        validateArgs(path).then(() => {
+            filesOfType(path, 'audio').then((files) => {
+                log(`Converting ${files.length} files to mp3 at ${options.bitrate} kbps`, 'info');
+                encodeMP3(process.cwd(), files, options).then(() => {
+                    log('All files successfully converted.', 'info');
+                }).catch(reject);
+            });
         }).catch(reject);
     });
 }
@@ -17,15 +31,17 @@ function main() {
  * argument
  * @returns {Promise}
  */
-function validateArgs() {
+function validateArgs(path) {
     return new Promise((resolve, reject) => {
-        firstArgIsFile().then((isFile) => {
+        isFile(path).then((isFile) => {
             if (isFile) {
                 resolve(true);
             } else {
-                firstArgIsDirectory().then((isDirectory) => {
+                isDirectory(path).then((isDirectory) => {
                     if (isDirectory) {
                         resolve(true);
+                    } else {
+                        reject(new Error('Supplied path is not a file nor directory.'));
                     }
                 }).catch(reject);
             }
@@ -33,83 +49,26 @@ function validateArgs() {
     });
 }
 
-function printErr(err) {
+export function log(msg, type) {
     const chalk = require('chalk');
-    console.log(chalk.red(err));
-}
-
-/*
-
-const ffmpeg = require('fluent-ffmpeg');
-const chalk = require('chalk');
-const argHelper = require('././arg-helper');
-const fsHelper = require('././fs-helper');
-
-main();
-
-function main() {
-    const dir = `${process.cwd()}/${process.argv[2]}`;
-    const opts = getOpts(require('minimist')(process.argv.slice(3)));
-    exec(dir, opts).then(() => {
-        console.log(chalk.blue('All files successfully converted.'));
-    }).catch(err => {
-        printErr(err);
-        process.exit(1);
-    });
-}
-
-function exec(dir, opts) {
-    return new Promise((resolve, reject) => {
-        argHelper.validate(dir).then(() => {
-            fsHelper.filesInDirOfType(dir, 'audio', 'mp3').then((files) => {
-                let doneCount = 0;
-                // clone file list to avoid increasing loop size
-                files = Object.assign([], files);
-                files.forEach((file) => {
-                    try {
-                        const fullPath = dir + '/' + file;
-                        ffmpeg()
-                            .input(fullPath)
-                            .audioCodec('libmp3lame')
-                            .audioBitrate(opts.bitrate)
-                            .save(`${fullPath}.mp3`)
-                            .on('start', () => {
-                                console.log(chalk.grey(`starting ${file}...`));
-                            })
-                            .on('end', () => {
-                                console.log(chalk.green(`${file}.mp3 done`));
-                                doneCount += 1;
-                                if (doneCount === files.length) {
-                                    resolve();
-                                }
-                            });
-                    } catch (e) {
-                        reject(e);
-                    }
-                });
-            }).catch(() => {
-                reject('An error occurred while reading the provided directory.');
-            });
-        }).catch(reject);
-    });
-}
-
-function getOpts(args) {
-    return {
-        bitrate: getBitrate(args)
+    switch (type) {
+        case 'error':
+            msg = chalk.red(msg);
+            break;
+        case 'info':
+            msg = chalk.blue(msg);
+            break;
+        case 'success':
+            msg = chalk.green(msg);
+            break;
+        default:
+            msg = chalk.grey(msg);
+            break;
     }
-}
-
-function getBitrate(args) {
-    if (args.bitrate && !isNaN(parseInt(args.bitrate))) {
-        return parseInt(args.bitrate);
-    } else {
-        // encode at 320kbps by default
-        return 320;
-    }
+    console.log(msg);
 }
 
 function printErr(err) {
-    console.log(chalk.red(err));
+    log(err, 'error');
 }
-*/
+

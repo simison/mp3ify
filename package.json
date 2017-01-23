@@ -1,7 +1,7 @@
 {
   "name": "mp3ify",
   "description": "Convert directory of audio files to mp3 format.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "Jason Ibrahim",
   "bin": {
     "mp3ify": "bin/index.js"
@@ -33,14 +33,15 @@
     "url": "git+https://github.com/jasonaibrahim/node-mp3ify.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js",
+    "test": "mocha"
   },
   "devDependencies": {
     "babel-core": "^6.22.1",
     "babel-loader": "^6.2.10",
     "babel-plugin-transform-regenerator": "^6.22.0",
     "babel-preset-latest": "^6.22.0",
+    "mocha": "^3.2.0",
     "webpack": "^2.2.0"
   }
 }
