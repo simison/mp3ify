@@ -28,12 +28,19 @@ npm install -g mp3ify
 ```shell
 mp3ify <file | directory> --<options>
 ```
+
 You may pass either a file or directory to the program. 
 Conversion will be attempted on any files detected with an `audio/*` mime type.
 
 Files will be saved in the calling 
 directory and will have the same name as the original file with `.mp3` appended.
 
+If you are using npm >= 5.2, then you can use [npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b) without installing mp3ify globally:
+ 
+ ```shell
+ npx mp3ify <file | directory> --<options>
+ ```
+ 
 #### options
 * `--bitrate` - the bitrate of the generated mp3 file in kb/s. default: 320
 * `--quiet` - suppress console output during encoding, exit with code 0 even if there is an exception. default: false
